@@ -32,3 +32,32 @@ All IRC traffic comes in through the same tube, where it can be split into three
 Of messages from a channel and messages from a specific user, both have the potential to be a command, if it is not a command then it is passed to the systems facilities for dealing with passive messages.
 Messages from the server are never commands.
 (The most cases are covered by assuming that one user is an op in multiple channels that auditbot is in, and another user is not an op or otherwise privileged in any channels auditbot is in.)
+
+Server Objects:
+---------------
+
+A connection between auditbot and a server is mediated by a *server object*. The server object maintains the connection and facilitates message passing between auditbot and the server. The server object has methods for auditbot to send commands and messages to the server, and recieve messages and responses back.
+
+A server object keeps the hostname of the server it's connected to as internal state.
+
+Server objects have the following methods:
+
+.raw_send(line):
+
+Takes a line of text and sends it to the server as a raw command.
+
+.quit():
+
+Sends a QUIT command to server, ending the connection.
+
+.raw_message(target, text):
+
+The low-level privmsg send method. Sends a line of text to target without embellishment or splitlines.
+
+.message(target, text):
+
+Sends message to target, splitting lines if text is longer than 510 characters.
+
+.notice(target, text):
+
+Sends a notice to target, messages to which a client is not supposed to reply.
