@@ -44,11 +44,31 @@ Server objects have the following methods:
 
 .raw_send(line):
 
-Takes a line of text and sends it to the server as a raw command.
+Take a line of text and sends it to the server as a raw command.
 
 .quit():
 
-Sends a QUIT command to server, ending the connection.
+Send a QUIT command to server, ending the connection.
+
+.nick(nickname):
+
+Change the nickname of the client.
+
+.user(username, mode, realname):
+
+Register with the server as a given user.
+
+.mode(modifier, mode)
+
+Change the clients usermode, with modifier being the addition or subtraction of a mode and mode being which to add or subtract.
+
+.join(channels):
+
+Send a JOIN command to the server, with channels as the target.
+
+.part(channels):
+
+Send a PART command to the server, with channels as the channels to part from.
 
 .raw_message(target, text):
 
@@ -56,8 +76,9 @@ The low-level privmsg send method. Sends a line of text to target without embell
 
 .message(target, text):
 
-Sends message to target, splitting lines if text is longer than 510 characters.
+Send message to target, splitting lines if text is longer than 510 characters.
 
 .notice(target, text):
 
-Sends a notice to target, messages to which a client is not supposed to reply.
+Send a notice to target, messages to which a client is not supposed to reply.
+
