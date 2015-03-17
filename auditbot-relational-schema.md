@@ -19,9 +19,7 @@ Registered(nickname, registered, account)
 ---
 Dependencies:
 
-nickname -> account
-
-nickname -> registered
+nickname -> account, registered
 
 Schema:
 
