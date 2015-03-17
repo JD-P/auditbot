@@ -21,6 +21,8 @@ Dependencies:
 
 nickname -> account
 
+nickname -> registered
+
 Schema:
 
 nickname (text) - A string representing a users nick.
