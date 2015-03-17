@@ -182,6 +182,8 @@ timestamp (datetime) - A timestamp for every message in the database.
 channel (text) - The name of the channel, server or user from which the message originated.
 
 type (text) - The type of message, possible types of message are PRIVMSG, NOTICE, JOIN, PART, QUIT, KICK, NICK, SETMODE, TOPIC.
-----
+
+Errata:
+-------
 
 Nickserv identify temporarily binds a connection to an account. (Here a connection would be a user@hostname combo.)
