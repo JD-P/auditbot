@@ -61,6 +61,27 @@ crude metrics to whitelist people instead. These metrics are a deliberately low
 bar so as not to invite arguments over who is 'regular' in channel and who is not. 
 Further, operators can grant users regular status if the metrics used by auditbot have missed somebody.
 
+To determine if users meet the metrics, auditbot keeps every time a user speaks 
+on record and 'plots' it along a timescale. It's not enough to just speak to be 
+considered a regular by auditbot, a user must have a conversation while they are
+in channel. (Below we get further into exactly what constitutes a 'conversation'
+for auditbots purposes.) Auditbot evaluates users on a short term and long term basis.
+If you have a certain number of conversations within a week, you're a regular.
+If you have a certain number of conversations within a month or a year, you're a regular.
+
+When using the 'activity' command to look at the activity of a user measured 
+like this, auditbot will give an operator the following statistics:
+
+User| Week: 0/7 Month: 0/30 Year: 0/12
+
+Where week is how many days of this week the user had a conversation.
+Month is how many days of this month the user had a conversation.
+Year is how many months of this year the user had a conversation.
+
+Auditbots crude metrics are as follows:
+
+1. 
+
 Commands:
 ---------
 
