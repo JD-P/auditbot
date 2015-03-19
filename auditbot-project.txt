@@ -48,7 +48,7 @@ channel, it can be difficult to distinguish trolls from 'lurkers' that don't tal
 Auditbot solves this problem by letting operators see who's new, who's been around 
 for a while but hasn't talked, and who channel 'regulars' are. 
 
-Before proceeding further it would be best to talk about what a 'regular' *is* from the perspective auditbot. A regular is:
+Before proceeding further it would be best to talk about what a 'regular' *is* from the perspective of auditbot. A regular is:
 
 1. A regular is somebody who is normalized in channel, that nobody would say "Oh hi never seen you before" to.
 
@@ -56,31 +56,86 @@ Before proceeding further it would be best to talk about what a 'regular' *is* f
 
 3. Regulars generally have conversations with other channel participants, distinguishing them from a lurker.
 
-Obviously auditbot cannot reliably determine the first for itself, so it uses 
-crude metrics to whitelist people instead. These metrics are a deliberately low 
-bar so as not to invite arguments over who is 'regular' in channel and who is not. 
-Further, operators can grant users regular status if the metrics used by auditbot have missed somebody.
+This is the ideal description of a regular anyway. Obviously auditbot cannot 
+reliably determine the first for itself, so it uses crude metrics to whitelist 
+people instead. These metrics are a deliberately low bar so as not to invite arguments 
+over who is 'regular' in channel and who is not. Further, operators can grant users 
+regular status if the metrics used by auditbot have missed somebody.
 
 To determine if users meet the metrics, auditbot keeps every time a user speaks 
-on record and 'plots' it along a timescale. It's not enough to just speak to be 
-considered a regular by auditbot, a user must have a conversation while they are
-in channel. (Below we get further into exactly what constitutes a 'conversation'
-for auditbots purposes.) Auditbot evaluates users on a short term and long term basis.
-If you have a certain number of conversations within a week, you're a regular.
-If you have a certain number of conversations within a month or a year, you're a regular.
+on record and 'plots' it along a timescale. Just speaking should not be enough to
+get you to regular status, ideally you would have a conversation. Further versions
+of the software might use statistical methods to track when conversations start and
+end so regular detection can work better. Instead what is done is to become a regular
+one must speak enough that you have to engage with the channel and show up consistently
+along a certain timescale. Auditbot evaluates users on a short term and long term 
+basis. If you have a certain number of lines spoken within a week, you're a regular.
+If you have a certain number of lines spoken within a month or a year, you're a 
+regular.
 
 When using the 'activity' command to look at the activity of a user measured 
 like this, auditbot will give an operator the following statistics:
 
 User| Week: 0/7 Month: 0/30 Year: 0/12
 
-Where week is how many days of this week the user had a conversation.
-Month is how many days of this month the user had a conversation.
-Year is how many months of this year the user had a conversation.
+Where week is how many days of this week the user said a certain number of lines.
+Month is how many days of this month the user said a certain number of lines.
+Year is how many months of this year the user said a certain number of lines.
 
 Auditbots crude metrics are as follows:
 
-1. 
+1. If a user is in channel for two consecutive days, they're considered a lurker.
+
+2. If a user is in channel for three days in a week and is not in the bottom 
+10% of lines spoken per the set of all users that spoke at least one line for that 
+day for each of the three days they're a regular.
+
+3. If a user is in channel for three days in three different weeks in a month and 
+is not in the bottom 10% of lines spoken per the set of all users that spoke at 
+least one line for that day for each of the three days they're a regular.
+
+4. If a user is in channel for three days in three consecutive months of a year
+and is not in the bottom 10% of lines spoken per the set of all users that spoke
+at least one line for that day for each of the three days they're a regular.
+
+Future versions of the program may use more complex methods to determine who is
+a regular.
+
+The reasoning behind these metrics is that they are a very low bar, the time at
+which a user was made a lurker or regular is recorded in the auditbot database
+and available to operators. The commands that deal with regulars and lurkers can
+be queried for people who were made such on, before or after a certain date. This
+means that even if say 100 trolls flood a channel and can't all be expelled within
+a single day, one can just look at all the users who were made lurkers the day before
+to see who still needs to be expelled.
+
+Further specific reasoning for each metric is as follows:
+
+1. If you just let it be being in channel for one day, that doesn't actually
+inform how long they need to be in it to count as a 'day', it's easier to just
+see if they join at some point in the next day, especially since people have sleep
+schedules and work which interfere with their clients connection in some cases.
+
+2. The clause for 'bottom ten percent' exists so that you are comparing against
+a relative baseline of communication for the channel. In some channels people
+talk more than they do in others, so a statistical method is more universal.
+This is also a low bar that is still high enough to force a hypothetical swarm
+of trolls to advertise their presence in channel by spamming it, which alerts
+operators that they need to be dealt with. You only compare to the set of people
+who talked since people who didn't talk in most channels would probably make up
+the average and people who didn't talk necessarily weren't part of a conversation
+anyway, we're trying to heuristically measure activity.
+
+3. This is essentially comparable to 2. but with a different timescale. The reason
+why different timescales are accepted is that some people are 'regulars' in the sense
+that they consistently show up in channel but only once a month or some such. We
+want to inlude these people in our evaluation of regulars because it's not just
+used for troll detection. Consistency is what makes somebody 'regular'.
+
+4. The is also essentially comparable to 2. and 3. with one subtle extra clause.
+The three days must be in three *consecutive* months. The reason for this is that
+somebody who only shows up once every other month is too sporadic in their visits
+to be a regular.
 
 Commands:
 ---------
