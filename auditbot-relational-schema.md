@@ -1,171 +1,140 @@
 Database Schema for Auditbot:
 =============================
 
-Hostmasks(nickname, user, hostname)
+Networks(id, nwid)
+----
+Dependencies:
+
+server -> nwid
+
+server (int) PRIMARY FOREIGN KEY OF Servers(id) - The id of a server associated with the nwid.
+
+nwid (int) UNIQUE - A unique integer id associated with the name of the network.
+
+nw_name (text) UNIQUE - The name of an IRC network, must be unique.
+
+
+Servers(id, hostname, nwid)
 ---
 Dependencies:
 
-nickname, user, hostname -> nickname, user, hostname
+hostname -> id
 
 Schema:
 
-nickname (text) - A string representing a users nick.
+id (int) PRIMARY KEY - A unique integer associated with the hostname.
 
-user (text) - A string representing the 'user' part of a hostmask.
+hostname (text) UNIQUE - The hostname of the server.
 
-hostname (text) - A string representing the hostname part of a hostmask.
 
-Registered(nickname, registered, account)
+Nicks(id, nick):
 ---
 Dependencies:
 
-nickname -> account, registered
+id -> nick
 
 Schema:
 
-nickname (text) - A string representing a users nick.
+id (int) PRIMARY KEY - A unique integer associated with the nick.
 
-registered (datetime) - The date and time that the nick was registered.
+nick (text) UNIQUE - The nickname associated with the id.
 
-account (text) - The account under which the nick was registered.
 
-Privmsgs(id, nickname, message)
-----
+Users(id, username):
+---
 Dependencies:
 
-id -> nickname, message
+id -> username
 
 Schema:
 
-id (integer) - A unique identification number for every message sent by the IRC server.
+id (int) PRIMARY KEY - A unique integer associated with the user of the hostmask.
 
-nickname (text) - A string representing a users nick.
+username (text) UNIQUE - The system username associated with the user.
 
-message (text) - The PRIVMSG sent to the channel or user.
 
-Notices(id, nickname, message)
-----
+Client_Hosts(id, hostname):
+---
 Dependencies:
 
-id -> nickname, message
+id -> hostname
 
 Schema:
 
-id (integer) - A unique identification number for every message sent by the IRC server.
+id (int) PRIMARY KEY - A unique integer associated with the hostname fo the hostmask.
 
-nickname (text) - A string representing a users nick.
+hostmask (text) UNIQUE - The hostname of the hostmask.
 
-message (text) - The NOTICE sent to the channel or user.
 
-Joins(id, nickname, user, hostname)
-----
+Channels(id, nwid, channel):
+---
 Dependencies:
 
-id -> nickname, user, hostname
+id -> nwid, channel
 
 Schema:
 
-id (integer) - A unique identification number for every message sent by the IRC server.
+id (int) PRIMARY KEY - A unique integer associated with the channel.
 
-nickname (text) - A string representing a users nick.
+nwid (int) FOREIGN KEY OF Networks(nwid) - The IRC network the channel is on.
 
-user (text) - A string representing the 'user' part of a hostmask.
+channel (text) - The channel name.
 
-hostname (text) - A string representing the hostname part of a hostmask.
+UNIQUE (nwid, channel)
 
-Parts(id, nickname, user, hostname, part_message)
-----
+
+Msg_Types(id, type)
+---
 Dependencies:
 
-id -> nickname, user, hostname, part_message
+id -> type
 
 Schema:
 
-id (integer) - A unique identification number for every message sent by the IRC server.
+id (int) PRIMARY KEY - A unique integer associated with the message type.
 
-nickname (text) - A string representing a users nick.
+type (text) UNIQUE - A string representing the type of message.
 
-user (text) - A string representing the 'user' part of a hostmask.
 
-hostname (text) - A string representing the hostname part of a hostmask.
-
-part_message (text) - The parting message sent by the client.
-
-Quits(id, nickname, user, hostname, quit_message)
-----
+Hostmasks(id, nwid, nickname, user, hostname)
+---
 Dependencies:
 
-id -> nickname, user, hostname, quit_message
+id -> server, nickname, user, hostname
 
 Schema:
 
-id (integer) - A unique identification number for every message sent by the IRC server.
+id (int) PRIMARY KEY - A unique integer associated with the hostmask.
 
-nickname (text) - A string representing a users nick.
+nwid (int) - The integer id of the IRC network the hostname is associated with.
 
-user (text) - A string representing the 'user' part of a hostmask.
+nickname (int) FOREIGN KEY OF Nicks(id) - An id representing a users nick.
 
-hostname (text) - A string representing the hostname part of a hostmask.
+user (text) FOREIGN KEY OF Users(id) - An id representing the 'user' part of a hostmask.
 
-quit_message (text) - The quit message sent by the client.
+hostname (text) FOREIGN KEY OF Client_Hosts(id) - An id representing the hostname part of a hostmask.
 
-Kicks(id, nick_kicked, kicked_by, kick_message)
-----
+UNIQUE (server, nickname, user, hostname)
+
+
+Registered(nwid, nickname, time_of, account)
+---
 Dependencies:
 
-id -> nick_kicked, kicked_by, kick_message
+nwid, nickname -> nwid, account, time_of
 
 Schema:
 
-id (integer) - A unique identification number for every message sent by the IRC server.
+nwid (int) FOREIGN KEY OF Networks(id) - An id representing the network this nick was registered on.
 
-nick_kicked (text) - The nick of the user kicked from channel.
+nickname (int) FOREIGN KEY OF Nicks(id) - An id representing a users nick.
 
-kicked_by (text) - The nick of the operator that kicked the user.
+time_of (int | timestamp) - The date and time that the nick was registered.
 
-kick_message (text) - The message the operator wrote as justification for the kick.
+account (int) FOREIGN KEY OF Nicks(id) - The account under which the nick was registered.
 
-Nick_Changes(id, nick_before, nick_after)
-----
-Dependencies:
+PRIMARY KEY (nwid, nickname, registered)
 
-id -> nick_before, nick_after
-
-Schema:
-
-id (integer) - A unique identification number for every message sent by the IRC server.
-
-nick_before (text) - The users nick before the change.
-
-nick_after (text) - The users nick after the change.
-
-Setmodes(id, set_by, mode_string)
-----
-Dependencies:
-
-id -> set_by, mode_string
-
-Schema:
-
-id (integer) - A unique identification number for every message sent by the IRC server.
-
-set_by (text) - The nickname of the operator who set the mode for the channel.
-
-mode_string (text) - The mode set.
-
-Topics(id, changed_by, topic)
-----
-Dependencies:
-
-id -> changed_by, topic
-
-Schema:
-
-id (integer) - A unique identification number for every message sent by the IRC server.
-
-changed_by (text) - The nick of the user that changed the topic.
-
-topic (text) - The text of the new topic for the channel.
 
 Messages(id, timestamp, channel, type)
 ----
@@ -175,13 +144,148 @@ id -> timestamp, channel, type
 
 Schema:
 
-id (integer) - A unique identification number for every message sent by the IRC server.
+id (integer) PRIMARY KEY - A unique identification number for every message sent by the IRC server.
 
-timestamp (datetime) - A timestamp for every message in the database.
+timestamp (int) - A timestamp for every message in the database.
 
-channel (text) - The name of the channel, server or user from which the message originated.
+channel (int) FOREIGN KEY OF Channels(id) - The name of the channel, server or user from which the message originated.
 
-type (text) - The type of message, possible types of message are PRIVMSG, NOTICE, JOIN, PART, QUIT, KICK, NICK, SETMODE, TOPIC.
+type (int) FOREIGN KEY OF Msg_Types(id) - The type of message, possible types of message are PRIVMSG, NOTICE, JOIN, PART, QUIT, KICK, NICK, SETMODE, TOPIC.
+
+
+Privmsgs(id, nickname, message)
+----
+Dependencies:
+
+id -> nickname, message
+
+Schema:
+
+id (integer) FOREIGN KEY OF Messages(id) - A unique identification number for every message sent by the IRC server.
+
+nickname (int) FOREIGN KEY OF Nicks(id) - An integer representing a users nick.
+
+message (text) - The PRIVMSG sent to the channel or user.
+
+
+Notices(id, nickname, message)
+----
+Dependencies:
+
+id -> nickname, message
+
+Schema:
+
+id (integer) FOREIGN KEY OF Messages(id) - A unique identification number for every message sent by the IRC server.
+
+nickname (int) FOREIGN KEY OF Nicks(id) - An integer representing a users nick.
+
+message (text) - The NOTICE sent to the channel or user.
+
+
+Joins(id, hostmask)
+----
+Dependencies:
+
+id -> hostmask
+
+Schema:
+
+id (integer) PRIMARY FOREIGN KEY OF Messages(id) - A unique identification number for every message sent by the IRC server.
+
+hostmask (integer) FOREIGN KEY OF Hostmasks(id) - The hostmask that joined.
+
+
+Parts(id, hostmask, part_message)
+----
+Dependencies:
+
+id -> hostmask, part_message
+
+Schema:
+
+id (integer) FOREIGN KEY OF Messages(id) - A unique identification number for every message sent by the IRC server.
+
+hostmask (int) FOREIGN KEY OF Hostmasks(id) - The hostmask that parted.
+
+part_message (text) - The parting message sent by the client.
+
+
+Quits(id, hostmask, quit_message)
+----
+Dependencies:
+
+id -> hostmask, quit_message
+
+Schema:
+
+id (integer) FOREIGN KEY OF Messages(id) - A unique identification number for every message sent by the IRC server.
+
+hostmask (int) FOREIGN KEY OF Hostmasks(id) - The hostmask that quit.
+
+quit_message (text) - The quit message sent by the client.
+
+
+Kicks(id, nick_kicked, kicked_by, kick_message)
+----
+Dependencies:
+
+id -> nick_kicked, kicked_by, kick_message
+
+Schema:
+
+id (integer) FOREIGN KEY OF Messages(id) - A unique identification number for every message sent by the IRC server.
+
+nick_kicked (int) FOREIGN KEY OF Nicks(id) - The nick of the user kicked from channel.
+
+kicked_by (int) FOREIGN KEY OF Nicks(id) - The nick of the operator that kicked the user.
+
+kick_message (text) - The message the operator wrote as justification for the kick.
+
+
+Nick_Changes(id, nick_before, nick_after)
+----
+Dependencies:
+
+id -> nick_before, nick_after
+
+Schema:
+
+id (integer) PRIMARY FOREIGN KEY OF Messages(id) - A unique identification number for every message sent by the IRC server.
+
+nick_before (id) FOREIGN KEY OF Nicks(id) - The users nick before the change.
+
+nick_after (id) FOREIGN KEY OF Nicks(id) - The users nick after the change.
+
+
+Setmodes(id, set_by, mode_string)
+----
+Dependencies:
+
+id -> set_by, mode_string
+
+Schema:
+
+id (integer) FOREIGN KEY OF Messages(id) - A unique identification number for every message sent by the IRC server.
+
+set_by (int) FOREIGN KEY OF Nicks(id) - The nickname of the operator who set the mode for the channel.
+
+mode_string (text) - The mode set.
+
+
+Topics(id, changed_by, topic)
+----
+Dependencies:
+
+id -> changed_by, topic
+
+Schema:
+
+id (integer) PRIMARY FOREIGN KEY OF Messages(id) - A unique identification number for every message sent by the IRC server.
+
+changed_by (int) FOREIGN KEY OF Nicks(id) - The nick of the user that changed the topic.
+
+topic (text) - The text of the new topic for the channel.
 
 Errata:
 -------
