@@ -168,6 +168,21 @@ nickname (int) FOREIGN KEY OF Nicks(id) - An integer representing a users nick.
 message (text) - The PRIVMSG sent to the channel or user.
 
 
+Actions(id, nickname, message):
+----
+Dependencies:
+
+id -> nickname. message
+
+Schema:
+
+id (integer) FOREIGN KEY OF Messages(id) - A unique identification number associated with the /me
+
+nickname (integer) FOREIGN KEY OF Nicks(id) - The nick of the client that sent the message.
+
+message (text) - The actual text of the /me.
+
+
 Notices(id, nickname, message)
 ----
 Dependencies:
