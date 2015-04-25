@@ -12,6 +12,8 @@ import psycopg2
 
 import argparse
 
+import components
+
 def main():
     """Implements the command line parsing and starts the program."""
     parser = argparse.ArgumentParser()
@@ -70,13 +72,17 @@ class Config():
         or dns hostname. Then check against existing hostnames with fuzzy matching.
         If match is found then return True and the id of the potential match."""
         
-        hostsplit = hostname.split(".")
+        hostsplit = hostname.split(".").lower()
         if len(hostsplit) == 1 and hostname.count(":") == 4:
             for character in hostname:
-                if character not in "0123456789abcdef":
+                if character not in "0123456789abcdef:":
                     raise ValueError("--connect: Was not given an ipv4, "
                                      "ipv6 or dns hostname.") 
-        
+        elif len(hostsplit) == 4:
+            for character in hostsplit:
+                if character not in "0123456789.":
+                    continue
+(protocol, name, tld) = (hostsplit[0],
 class ABControl(irc.client):
     """The controlling event loop for auditbot, based on the client template in the python Jaraco IRC library."""
     def __init__(self):
